@@ -1,17 +1,37 @@
-import InertiaElement from "@/components/motion/InertiaElement";
 import { useLayoutEffect, useRef } from "react";
 import gsap from "gsap";
+import ImageReveal from "@/components/ui/image-tiles";
+import { Button } from "@/components/ui/button";
+import { ArrowUpRight } from "lucide-react";
 
 const base = import.meta.env.BASE_URL;
 
 const CARDS = [
-  { src: `${base}leadership.jpg`, rotate: "-8deg", tag: "leadership", tagColor: "#fbc6ff" },
-  { src: `${base}community.jpg`, rotate: "4deg", tag: "community first", tagColor: "#e6fab9" },
-  { src: `${base}events.jpg`, rotate: "-3deg", tag: "culture nights", tagColor: "#82a0ff" },
-  { src: `${base}support.jpg`, rotate: "6deg", tag: "support", tagColor: "#e6fab9" },
-  { src: `${base}events.jpg`, rotate: "-6deg", tag: "fundraisers", tagColor: "#fbc6ff" },
-  { src: `${base}community.jpg`, rotate: "2deg", tag: "connections", tagColor: "#82a0ff" },
+  { src: `${base}leadership.jpg`, rotate: "-8deg", tag: "alison", tagColor: "#fbc6ff" },
+  { src: `${base}community.jpg`, rotate: "4deg", tag: "ei", tagColor: "#e6fab9" },
+  { src: `${base}events.jpg`, rotate: "-3deg", tag: "linh", tagColor: "#82a0ff" },
+  { src: `${base}support.jpg`, rotate: "6deg", tag: "ismail", tagColor: "#e6fab9" },
+  { src: `${base}events.jpg`, rotate: "-6deg", tag: "eric", tagColor: "#fbc6ff" },
+  { src: `${base}community.jpg`, rotate: "2deg", tag: "christina", tagColor: "#82a0ff" },
+  { src: `${base}leadership.jpg`, rotate: "-2deg", tag: "crystal", tagColor: "#e6fab9" },
+  { src: `${base}support.jpg`, rotate: "5deg", tag: "gokul", tagColor: "#82a0ff" },
+  { src: `${base}events.jpg`, rotate: "-5deg", tag: "dara", tagColor: "#e6fab9" },
+  { src: `${base}community.jpg`, rotate: "3deg", tag: "xander", tagColor: "#fbc6ff" },
+  { src: `${base}support.jpg`, rotate: "-7deg", tag: "vincent", tagColor: "#82a0ff" },
+  { src: `${base}leadership.jpg`, rotate: "7deg", tag: "ije", tagColor: "#fbc6ff" },
+  { src: `${base}community.jpg`, rotate: "-4deg", tag: "pat", tagColor: "#e6fab9" },
+  { src: `${base}events.jpg`, rotate: "1deg", tag: "im", tagColor: "#82a0ff" },
 ];
+
+const GALLERY_IMAGES = {
+  left: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=900&q=80",
+  middle:
+    "https://images.unsplash.com/photo-1511632765486-a26380d490e2?auto=format&fit=crop&w=900&q=80",
+  right:
+    "https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=900&q=80",
+} as const;
+
+const GALLERY_BG = `${import.meta.env.BASE_URL}gallery-bg.png`;
 
 function HoverInertiaCard({
   src,
@@ -100,17 +120,17 @@ function HoverInertiaCard({
         className="relative will-change-transform"
         style={{ transform: "translate3d(0,0,0)" }}
       >
-        <div className="relative overflow-hidden rounded-3xl bg-zinc-200 shadow-[0_18px_60px_-35px_rgba(0,0,0,0.55)] ring-1 ring-black/5 transition-all duration-300 ease-out group-hover:scale-[1.05] group-hover:shadow-[0_26px_80px_-40px_rgba(0,0,0,0.65)]">
+        <div className="relative aspect-square w-full overflow-hidden rounded-3xl bg-zinc-200 shadow-[0_16px_48px_-32px_rgba(0,0,0,0.55)] ring-1 ring-black/5 transition-all duration-300 ease-out group-hover:scale-[1.04] group-hover:shadow-[0_24px_64px_-38px_rgba(0,0,0,0.65)]">
           <img
             src={src}
             alt=""
             draggable={false}
-            className="h-[clamp(190px,24vh,280px)] w-full object-cover"
+            className="h-full w-full object-cover"
           />
         </div>
 
         <div
-          className="absolute -top-4 left-6 inline-flex items-center rounded-[50px] px-4 py-2 text-sm font-extrabold tracking-tight text-zinc-900 shadow-[0_12px_40px_-24px_rgba(0,0,0,0.55)] ring-1 ring-black/10"
+          className="absolute -top-3 left-4 inline-flex items-center rounded-[999px] px-3 py-1.5 text-xs font-extrabold tracking-tight text-zinc-900 shadow-[0_12px_40px_-24px_rgba(0,0,0,0.55)] ring-1 ring-black/10 sm:-top-4 sm:left-6 sm:px-4 sm:py-2 sm:text-sm"
           style={{ backgroundColor: tagColor }}
         >
           {tag}
@@ -125,12 +145,12 @@ export default function BoardMembersSection() {
     <section
       id="board"
       aria-label="Our board members"
-      className="relative w-full overflow-hidden bg-background py-12 sm:py-14 md:flex md:min-h-screen md:items-center"
+      className="relative w-full overflow-hidden bg-background py-16 sm:py-20 md:flex md:min-h-[115vh] md:items-center"
     >
       {/* blurred blobs */}
       <div aria-hidden="true" className="pointer-events-none absolute inset-0">
         <svg
-          className="absolute -left-32 top-16 h-[520px] w-[520px] opacity-35 blur-[50px] sm:h-[680px] sm:w-[680px]"
+          className="absolute -left-52 top-8 h-[clamp(360px,62vw,680px)] w-[clamp(360px,62vw,680px)] opacity-30 blur-[50px] sm:-left-60 sm:top-10 sm:opacity-35 md:-left-72 md:top-12"
           viewBox="0 0 600 600"
           fill="none"
         >
@@ -140,7 +160,7 @@ export default function BoardMembersSection() {
           />
         </svg>
         <svg
-          className="absolute -right-40 top-44 h-[560px] w-[560px] opacity-30 blur-[50px] sm:h-[720px] sm:w-[720px]"
+          className="absolute -right-56 top-40 h-[clamp(380px,66vw,720px)] w-[clamp(380px,66vw,720px)] opacity-25 blur-[50px] sm:-right-64 sm:top-44 sm:opacity-30 md:-right-72 md:top-52"
           viewBox="0 0 600 600"
           fill="none"
         >
@@ -170,17 +190,67 @@ export default function BoardMembersSection() {
           </p>
         </div>
 
-        <div className="relative mt-10 grid grid-cols-2 justify-items-center gap-[34px] sm:grid-cols-3 md:mt-12 lg:grid-cols-3">
+        <div className="relative mt-10 grid grid-cols-2 justify-items-center gap-2.5 pb-10 sm:grid-cols-3 sm:gap-4 sm:pb-12 md:mt-12 md:grid-cols-4 md:pb-14">
           {CARDS.map((c) => (
-            <InertiaElement
+            <div
               key={c.tag}
-              speed={0.9}
-              direction="down"
-              className="w-full max-w-[min(380px,44vw)] sm:max-w-[min(380px,28vw)]"
+              className="w-full max-w-[150px] sm:max-w-[180px] md:max-w-[200px]"
             >
               <HoverInertiaCard {...c} />
-            </InertiaElement>
+            </div>
           ))}
+        </div>
+
+        <div className="group relative mx-auto mt-44 flex w-full max-w-2xl flex-col items-center pt-10 text-center sm:mt-56 sm:pt-12">
+          <img
+            src={GALLERY_BG}
+            alt=""
+            aria-hidden="true"
+            className="animate-tsa-float pointer-events-none absolute -left-6 -top-10 z-0 h-[clamp(138px,22vw,220px)] w-auto -rotate-[14deg] select-none transition-transform duration-500 ease-out group-hover:-translate-y-2 group-hover:-rotate-[10deg] sm:-left-12 sm:-top-14 md:-left-20 md:-top-20"
+            draggable={false}
+          />
+          <img
+            src={GALLERY_BG}
+            alt=""
+            aria-hidden="true"
+            className="animate-tsa-float-soft pointer-events-none absolute -right-7 -top-8 z-0 h-[clamp(129px,21vw,210px)] w-auto rotate-[20deg] select-none transition-transform duration-500 ease-out group-hover:-translate-y-2 group-hover:rotate-[16deg] sm:-right-10 sm:-top-10 md:-right-16 md:-top-14"
+            draggable={false}
+          />
+          <div className="relative z-10 flex w-full flex-col items-center">
+            <div className="inline-flex items-center rounded-full border border-zinc-300 bg-background px-3 py-1 text-xs font-semibold tracking-wide text-zinc-700">
+              Gallery
+            </div>
+            <h2 className="mt-2 text-pretty text-4xl leading-[1] tracking-[-0.04em] text-zinc-900 sm:text-5xl md:text-6xl">
+              community moments
+            </h2>
+            <p className="mx-auto mt-2 max-w-xl text-pretty text-sm font-semibold leading-6 text-zinc-600 sm:text-base sm:leading-7">
+              A quick peek at events, culture nights, and the people who make TSA
+              special.
+            </p>
+            <div className="mt-0 flex justify-center">
+              <Button
+                size="sm"
+                className="group not-disabled:inset-shadow-none mx-auto flex cursor-pointer items-center justify-center gap-0 rounded-full border-none bg-transparent px-0 py-2 text-sm font-normal shadow-none hover:bg-transparent [:hover,[data-pressed]]:bg-transparent"
+                render={<a href="/gallery" aria-label="View the gallery" />}
+              >
+                <span className="rounded-full bg-white px-4 py-1.5 font-bold text-[#9B1B30] duration-500 ease-in-out group-hover:bg-[#7A1028] group-hover:text-[#FFFFF0] group-hover:transition-colors">
+                  View gallery
+                </span>
+                <div className="relative flex h-fit cursor-pointer items-center overflow-hidden rounded-full bg-white p-2.5 font-bold text-[#9B1B30] duration-500 ease-in-out group-hover:bg-[#7A1028] group-hover:text-[#FFFFF0] group-hover:transition-colors">
+                  <ArrowUpRight className="absolute h-4 w-4 -translate-x-1/2 transition-all duration-500 ease-in-out group-hover:translate-x-10" />
+                  <ArrowUpRight className="absolute h-4 w-4 -translate-x-10 transition-all duration-500 ease-in-out group-hover:-translate-x-1/2" />
+                </div>
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-3 flex justify-center sm:mt-4">
+          <ImageReveal
+            leftImage={GALLERY_IMAGES.left}
+            middleImage={GALLERY_IMAGES.middle}
+            rightImage={GALLERY_IMAGES.right}
+          />
         </div>
       </div>
     </section>

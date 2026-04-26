@@ -1,28 +1,19 @@
-import { useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useLayoutEffect, useMemo, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
-type AboutSlide = {
+const base = import.meta.env.BASE_URL;
+
+type ServiceCard = {
   title: string;
   description: string;
   imageSrc: string;
   imageAlt: string;
+  theme: "red" | "navy" | "cream";
 };
 
-const base = import.meta.env.BASE_URL;
-
-/** Horizontal Thai flag bands (1:1:2:1:1) — matches site accent colors */
-const THAI_FLAG_PROGRESS_BG = [
-  "linear-gradient(to right,",
-  "#ED1C24 0% 16.666%,",
-  "#FFFFFF 16.666% 33.333%,",
-  "#241D4F 33.333% 66.666%,",
-  "#FFFFFF 66.666% 83.333%,",
-  "#ED1C24 83.333% 100%)",
-].join(" ");
-
 export default function AboutUsScroll() {
-  const slides: AboutSlide[] = useMemo(
+  const cards = useMemo<ServiceCard[]>(
     () => [
       {
         title: "Cultural Events",
@@ -30,6 +21,7 @@ export default function AboutUsScroll() {
           "Placeholder text about cultural celebrations, food nights, and shared traditions that bring people together.",
         imageSrc: `${base}events.jpg`,
         imageAlt: "Students celebrating culture",
+        theme: "red",
       },
       {
         title: "Community",
@@ -37,6 +29,7 @@ export default function AboutUsScroll() {
           "Placeholder text about meeting new friends, staying connected, and finding your people on campus.",
         imageSrc: `${base}community.jpg`,
         imageAlt: "Community gathering",
+        theme: "cream",
       },
       {
         title: "Leadership",
@@ -44,6 +37,7 @@ export default function AboutUsScroll() {
           "Placeholder text about leading events, building confidence, and creating impact through service.",
         imageSrc: `${base}leadership.jpg`,
         imageAlt: "Leadership and teamwork",
+        theme: "navy",
       },
       {
         title: "Support",
@@ -51,258 +45,171 @@ export default function AboutUsScroll() {
           "Placeholder text about welcoming new members, sharing resources, and supporting students throughout the year.",
         imageSrc: `${base}support.jpg`,
         imageAlt: "Student support",
+        theme: "cream",
       },
     ],
     [],
   );
 
   const rootRef = useRef<HTMLElement | null>(null);
-  const trackRef = useRef<HTMLDivElement | null>(null);
-  const progressFillRef = useRef<HTMLDivElement | null>(null);
-  const [activeIndex, setActiveIndex] = useState(0);
+  const cardRefs = useRef<Array<HTMLElement | null>>([]);
+  const overlayRefs = useRef<Array<HTMLDivElement | null>>([]);
 
   useLayoutEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
-    if (!rootRef.current || !trackRef.current || !progressFillRef.current) return;
+    if (!rootRef.current) return;
 
-    const syncImageLayout = (index: number) => {
-      const windowEl =
-        rootRef.current?.querySelector<HTMLElement>("[data-about-window]");
-      const slideEls = Array.from(
-        rootRef.current?.querySelectorAll<HTMLElement>("[data-about-image]") ?? [],
-      );
-      const imgHeight = windowEl?.offsetHeight ?? 0;
-      if (!imgHeight) return;
+    const ctx = gsap.context(() => {
+      const els = cardRefs.current.filter(Boolean) as HTMLElement[];
+      if (els.length < 2) return;
 
-      slideEls.forEach((el) => {
-        el.style.height = `${imgHeight}px`;
+      const mm = gsap.matchMedia();
+
+      mm.add("(prefers-reduced-motion: reduce)", () => {
+        els.forEach((el) => gsap.set(el, { clearProps: "transform" }));
+        overlayRefs.current.forEach((ov) => ov && gsap.set(ov, { opacity: 0 }));
+        return () => {};
       });
 
-      gsap.set(trackRef.current!, { y: -(index * imgHeight) });
-    };
+      mm.add("(prefers-reduced-motion: no-preference)", () => {
+        const triggers: ScrollTrigger[] = [];
 
-    // Ensure first paint doesn't show multiple images.
-    syncImageLayout(0);
+        els.forEach((eachCard, index) => {
+          if (index >= els.length - 1) return;
 
-    const mm = gsap.matchMedia();
-    mm.add("(prefers-reduced-motion: reduce)", () => {
-      // Still pin to keep layout consistent, but skip animations.
-      const st = ScrollTrigger.create({
-        trigger: rootRef.current!,
-        start: "top top",
-        end: `${window.innerHeight * slides.length}px`,
-        pin: true,
-        pinSpacing: true,
-        onRefresh: () => syncImageLayout(activeIndex),
-        onUpdate: (self) => {
-          const next = Math.min(
-            slides.length - 1,
-            Math.max(0, Math.floor(self.progress * slides.length)),
+          triggers.push(
+            ScrollTrigger.create({
+              trigger: eachCard,
+              start: "top top",
+              endTrigger: els[els.length - 1],
+              end: "top top",
+              pin: true,
+              pinSpacing: false,
+            }),
           );
-          setActiveIndex(next);
-          progressFillRef.current!.style.clipPath = `inset(0 ${
-            (1 - self.progress) * 100
-          }% 0 0)`;
 
-          syncImageLayout(next);
-        },
-      });
-      return () => st.kill();
-    });
+          const nextCard = els[index + 1];
+          const overlay = overlayRefs.current[index];
 
-    mm.add("(prefers-reduced-motion: no-preference)", () => {
-      const ctx = gsap.context(() => {
-        const end = () => window.innerHeight * slides.length;
-        const st = ScrollTrigger.create({
-          id: "about-us-scroll",
-          trigger: rootRef.current!,
-          start: "top top",
-          end: () => `+=${end()}`,
-          pin: true,
-          pinSpacing: true,
-          scrub: true,
-          onRefreshInit: () => syncImageLayout(activeIndex),
-          onRefresh: () => syncImageLayout(activeIndex),
-          onUpdate: (self) => {
-            const next = Math.min(
-              slides.length - 1,
-              Math.max(0, Math.floor(self.progress * slides.length)),
-            );
-            setActiveIndex((prev) => (prev === next ? prev : next));
-            progressFillRef.current!.style.clipPath = `inset(0 ${
-              (1 - self.progress) * 100
-            }% 0 0)`;
-
-            const windowEl =
-              rootRef.current!.querySelector<HTMLElement>("[data-about-window]");
-            const imgHeight = windowEl?.offsetHeight ?? 0;
-            if (!imgHeight) return;
-
-            const slideEls = Array.from(
-              rootRef.current!.querySelectorAll<HTMLElement>("[data-about-image]"),
-            );
-            slideEls.forEach((el) => {
-              el.style.height = `${imgHeight}px`;
-            });
-
-            gsap.to(trackRef.current!, {
-              y: -(next * imgHeight),
-              duration: 0.35,
-              ease: "power3.out",
-              overwrite: true,
-            });
-          },
+          triggers.push(
+            ScrollTrigger.create({
+              trigger: nextCard,
+              start: "top bottom",
+              end: "top top",
+              onUpdate: (self) => {
+                const progress = self.progress;
+                gsap.set(eachCard, {
+                  scale: 1 - progress * 0.25,
+                  rotation: index % 2 === 0 ? progress * 5 : -progress * 5,
+                  rotationX: index % 2 === 0 ? progress * 40 : -progress * 40,
+                  transformOrigin: "50% 50%",
+                });
+                if (overlay) gsap.set(overlay, { opacity: progress * 0.35 });
+              },
+            }),
+          );
         });
 
-        return () => st.kill();
-      }, rootRef);
+        return () => triggers.forEach((t) => t.kill());
+      });
 
-      return () => ctx.revert();
-    });
+      const onResize = () => ScrollTrigger.refresh();
+      window.addEventListener("resize", onResize);
 
-    const onResize = () => ScrollTrigger.refresh();
-    window.addEventListener("resize", onResize);
+      return () => {
+        window.removeEventListener("resize", onResize);
+        mm.revert();
+      };
+    }, rootRef);
 
-    return () => {
-      window.removeEventListener("resize", onResize);
-      mm.revert();
-    };
-  }, [slides.length]);
+    return () => ctx.revert();
+  }, []);
 
   return (
     <section
       ref={rootRef}
-      className="relative flex min-h-dvh w-full items-center overflow-hidden bg-background"
+      className="relative w-full bg-background font-manrope"
       aria-label="Our Services"
     >
-      <div className="mx-auto flex min-h-dvh w-full max-w-6xl flex-1 flex-col justify-center gap-8 px-6 py-10 sm:py-12 md:flex-row md:items-center md:justify-between md:gap-12 md:px-10 lg:gap-16 lg:py-16">
-        {/* LEFT */}
-        <div className="flex w-full flex-col items-start justify-center md:w-[44%]">
-          <div className="inline-flex items-center rounded-full border border-zinc-300 bg-background px-3 py-1 text-xs font-semibold tracking-wide text-zinc-700">
-            About
+      <div className="mx-auto w-full max-w-6xl px-6 py-16 md:px-10">
+        <div className="mb-10">
+          <div className="inline-flex w-fit items-center rounded-full border border-zinc-300 bg-background px-3 py-1 text-xs font-semibold tracking-wide text-zinc-700">
+            Our Services
           </div>
-          <div className="mt-4 flex items-center gap-4">
-            <h2 className="text-balance text-3xl tracking-tight text-zinc-900 sm:text-4xl lg:text-5xl">
-              Our Services
-            </h2>
-            <svg
-              viewBox="0 0 30 20"
-              className="ml-3 h-9 w-14 shrink-0 overflow-hidden rounded-[6px] ring-1 ring-black/10 sm:ml-4 sm:h-10 sm:w-16"
-              aria-hidden="true"
-              focusable="false"
-            >
-              <rect x="0" y="0" width="30" height="3" fill="#ED1C24" />
-              <rect x="0" y="3" width="30" height="3" fill="#FFFFFF" />
-              <rect x="0" y="6" width="30" height="8" fill="#241D4F" />
-              <rect x="0" y="14" width="30" height="3" fill="#FFFFFF" />
-              <rect x="0" y="17" width="30" height="3" fill="#ED1C24" />
-            </svg>
-          </div>
-
-          <div className="mt-8 flex w-full flex-col gap-3 sm:mt-10 sm:gap-4">
-            {slides.map((s, i) => {
-              const isActive = i === activeIndex;
-              return (
-                <button
-                  key={s.title}
-                  type="button"
-                  className="group flex w-full items-baseline justify-between gap-4 text-left"
-                  onClick={() => {
-                    // Click jump: scroll to the matching segment.
-                    const st = ScrollTrigger.getById("about-us-scroll");
-                    if (!st) return;
-                    const total = st.end - st.start;
-                    const next = st.start + total * (i / slides.length);
-                    window.scrollTo({ top: next, behavior: "smooth" });
-                  }}
-                >
-                  <span
-                    className={[
-                      "text-2xl font-semibold tracking-tight transition-colors sm:text-3xl",
-                      isActive ? "text-zinc-900" : "text-zinc-300",
-                      "group-hover:text-zinc-700",
-                    ].join(" ")}
-                  >
-                    {s.title}
-                  </span>
-                  <span
-                    className={[
-                      "mt-1 text-sm font-semibold tabular-nums transition-colors",
-                      isActive ? "text-zinc-900" : "text-zinc-300",
-                      "group-hover:text-zinc-600",
-                    ].join(" ")}
-                  >
-                    {String(i + 1).padStart(2, "0")}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Horizontal indicator (progress) */}
-          <div className="mt-8 w-full sm:mt-10">
-            <div className="relative h-[3px] w-full overflow-hidden rounded-full bg-zinc-200">
-              <div
-                ref={progressFillRef}
-                className="pointer-events-none h-full w-full will-change-[clip-path]"
-                style={{
-                  backgroundImage: THAI_FLAG_PROGRESS_BG,
-                  clipPath: "inset(0 100% 0 0)",
-                }}
-                aria-hidden="true"
-              />
-            </div>
-            <div className="mt-3 flex items-center justify-between text-xs font-semibold text-zinc-500">
-              <span>{String(activeIndex + 1).padStart(2, "0")}</span>
-              <span className="h-[1px] w-10 bg-zinc-300" />
-              <span>{String(slides.length).padStart(2, "0")}</span>
-            </div>
-          </div>
+          <h2 className="mt-4 text-balance text-3xl font-semibold tracking-tight text-zinc-900 sm:text-4xl lg:text-5xl">
+            Built for culture, community, and impact.
+          </h2>
+          <p className="mt-3 max-w-2xl text-pretty text-sm leading-6 text-zinc-600 sm:text-base sm:leading-7">
+            Scroll to explore what we do — each section pins, then tilts and scales
+            away as the next one arrives.
+          </p>
         </div>
 
-        {/* RIGHT */}
-        <div className="flex w-full flex-col items-start justify-center gap-4 sm:gap-6 md:w-[48%]">
-          <div className="relative w-full max-w-xl">
-            {/* “Better shaped” image window */}
-            <div className="relative w-full overflow-hidden rounded-[28px] bg-zinc-100 shadow-[0_20px_60px_-25px_rgba(0,0,0,0.35)] ring-1 ring-black/5">
-              <div
-                className="pointer-events-none absolute -right-10 -top-10 h-44 w-44 rounded-full bg-zinc-900/5 blur-2xl"
-                aria-hidden="true"
-              />
+        <div className="space-y-0">
+          {cards.map((c, index) => {
+            const bg =
+              c.theme === "red"
+                ? "bg-[#9B1B30]"
+                : c.theme === "navy"
+                  ? "bg-[#241D4F]"
+                  : "bg-[#FFFFF0]";
+            const fg = c.theme === "cream" ? "text-zinc-900" : "text-[#FFFFF0]";
+            const border = c.theme === "cream" ? "border-black/10" : "border-white/15";
 
-              <div
-                className="relative h-[240px] w-full sm:h-[280px] md:h-[300px] lg:h-[340px]"
-                data-about-window
+            return (
+              <section
+                key={c.title}
+                ref={(el) => {
+                  cardRefs.current[index] = el;
+                }}
+                className={[
+                  "relative flex w-full flex-col gap-8 overflow-hidden rounded-[28px] border-b",
+                  border,
+                  bg,
+                  fg,
+                  "px-6 py-12 md:flex-row md:items-start md:justify-between md:gap-10 md:px-10 md:py-16",
+                ].join(" ")}
+                style={{ perspective: 1000, transformStyle: "preserve-3d" }}
               >
                 <div
-                  ref={trackRef}
-                  className="will-change-transform"
-                  style={{ transform: "translateY(0px)" }}
-                >
-                  {slides.map((s) => (
-                    <div
-                      key={s.title}
-                      data-about-image
-                      className="w-full"
-                    >
-                      <img
-                        src={s.imageSrc}
-                        alt={s.imageAlt}
-                        className="h-full w-full object-cover"
-                        draggable={false}
-                      />
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
+                  ref={(el) => {
+                    overlayRefs.current[index] = el;
+                  }}
+                  className="pointer-events-none absolute inset-0 bg-black opacity-0"
+                  aria-hidden="true"
+                />
 
-          <div className="w-full max-w-xl">
-            <p className="text-pretty text-sm leading-6 text-zinc-600 sm:text-base sm:leading-7">
-              {slides[activeIndex]?.description ?? ""}
-            </p>
-          </div>
+                <div className="shrink-0">
+                  <span className="text-5xl font-semibold tracking-tight sm:text-6xl md:text-7xl">
+                    ({String(index + 1).padStart(2, "0")})
+                  </span>
+                </div>
+
+                <div className="flex w-full flex-col items-start md:w-[62%]">
+                  <h3 className="text-balance text-3xl font-semibold tracking-tight sm:text-4xl lg:text-5xl">
+                    {c.title}
+                  </h3>
+                  <div className="mt-6 w-full overflow-hidden rounded-2xl p-2">
+                    <img
+                      src={c.imageSrc}
+                      alt={c.imageAlt}
+                      className="h-[220px] w-full rounded-xl object-cover sm:h-[280px] md:h-[320px]"
+                      loading="lazy"
+                      draggable={false}
+                    />
+                  </div>
+                  <p
+                    className={[
+                      "mt-5 pt-2 max-w-prose text-sm leading-6 sm:text-base sm:leading-7",
+                      c.theme === "cream" ? "text-zinc-700" : "text-white/85",
+                    ].join(" ")}
+                  >
+                    {c.description}
+                  </p>
+                </div>
+              </section>
+            );
+          })}
         </div>
       </div>
     </section>
