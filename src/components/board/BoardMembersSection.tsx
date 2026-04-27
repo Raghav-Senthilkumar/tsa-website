@@ -7,20 +7,20 @@ import { ArrowUpRight } from "lucide-react";
 const base = import.meta.env.BASE_URL;
 
 const CARDS = [
-  { src: `${base}leadership.jpg`, rotate: "-8deg", tag: "alison", tagColor: "#fbc6ff" },
-  { src: `${base}community.jpg`, rotate: "4deg", tag: "ei", tagColor: "#e6fab9" },
-  { src: `${base}events.jpg`, rotate: "-3deg", tag: "linh", tagColor: "#82a0ff" },
-  { src: `${base}support.jpg`, rotate: "6deg", tag: "ismail", tagColor: "#e6fab9" },
-  { src: `${base}events.jpg`, rotate: "-6deg", tag: "eric", tagColor: "#fbc6ff" },
-  { src: `${base}community.jpg`, rotate: "2deg", tag: "christina", tagColor: "#82a0ff" },
-  { src: `${base}leadership.jpg`, rotate: "-2deg", tag: "crystal", tagColor: "#e6fab9" },
-  { src: `${base}support.jpg`, rotate: "5deg", tag: "gokul", tagColor: "#82a0ff" },
-  { src: `${base}events.jpg`, rotate: "-5deg", tag: "dara", tagColor: "#e6fab9" },
-  { src: `${base}community.jpg`, rotate: "3deg", tag: "xander", tagColor: "#fbc6ff" },
-  { src: `${base}support.jpg`, rotate: "-7deg", tag: "vincent", tagColor: "#82a0ff" },
-  { src: `${base}leadership.jpg`, rotate: "7deg", tag: "ije", tagColor: "#fbc6ff" },
-  { src: `${base}community.jpg`, rotate: "-4deg", tag: "pat", tagColor: "#e6fab9" },
-  { src: `${base}events.jpg`, rotate: "1deg", tag: "im", tagColor: "#82a0ff" },
+  { src: `${base}Alison.jpg`, rotate: "-8deg", tag: "alison", tagColor: "#A51931" },
+  { src: `${base}Ei.jpg`, rotate: "4deg", tag: "ei", tagColor: "#F4F5F8" },
+  { src: `${base}Linh.jpg`, rotate: "-3deg", tag: "linh", tagColor: "#2D2A4A" },
+  { src: `${base}Ismail.jpg`, rotate: "6deg", tag: "ismail", tagColor: "#A51931" },
+  { src: `${base}Eric.jpg`, rotate: "-6deg", tag: "eric", tagColor: "#F4F5F8" },
+  { src: `${base}Christina.jpg`, rotate: "2deg", tag: "christina", tagColor: "#2D2A4A" },
+  { src: `${base}Crystal.jpg`, rotate: "-2deg", tag: "crystal", tagColor: "#A51931" },
+  { src: `${base}Gokul.jpg`, rotate: "5deg", tag: "gokul", tagColor: "#F4F5F8" },
+  { src: `${base}Dara.jpg`, rotate: "-5deg", tag: "dara", tagColor: "#2D2A4A" },
+  { src: `${base}Xander.jpg`, rotate: "3deg", tag: "xander", tagColor: "#A51931" },
+  { src: `${base}Vincent.jpg`, rotate: "-7deg", tag: "vincent", tagColor: "#F4F5F8" },
+  { src: `${base}Ije.jpg`, rotate: "7deg", tag: "ije", tagColor: "#2D2A4A" },
+  { src: `${base}Pat.jpg`, rotate: "-4deg", tag: "pat", tagColor: "#A51931" },
+  { src: `${base}Im.jpg`, rotate: "1deg", tag: "im", tagColor: "#F4F5F8" },
 ];
 
 const GALLERY_IMAGES = {
@@ -130,8 +130,10 @@ function HoverInertiaCard({
         </div>
 
         <div
-          className="absolute -top-3 left-4 inline-flex items-center rounded-[999px] px-3 py-1.5 text-xs font-extrabold tracking-tight text-zinc-900 shadow-[0_12px_40px_-24px_rgba(0,0,0,0.55)] ring-1 ring-black/10 sm:-top-4 sm:left-6 sm:px-4 sm:py-2 sm:text-sm"
           style={{ backgroundColor: tagColor }}
+          className={`absolute -top-3 left-4 inline-flex items-center rounded-[999px] px-3 py-1.5 text-xs font-extrabold tracking-tight shadow-[0_12px_40px_-24px_rgba(0,0,0,0.55)] ring-1 ring-black/10 sm:-top-4 sm:left-6 sm:px-4 sm:py-2 sm:text-sm ${
+            (tagColor === "#2D2A4A" || tagColor === "#A51931") ? "text-white" : "text-zinc-900"
+          }`}
         >
           {tag}
         </div>
