@@ -104,7 +104,7 @@ export default function ImageReveal({
       animate="animate"
     >
       <motion.div
-        className="absolute h-48 w-48 origin-bottom-right overflow-hidden rounded-xl bg-white shadow-lg"
+        className="absolute h-48 w-48 origin-bottom-right overflow-hidden rounded-xl shadow-lg"
         variants={leftImageVariants}
         whileHover="hover"
         animate="animate"
@@ -113,13 +113,13 @@ export default function ImageReveal({
         <img
           src={leftImage}
           alt="Left image"
-          className="h-full w-full rounded-xl object-cover p-2"
+          className="h-full w-full rounded-xl object-cover"
           loading="lazy"
         />
       </motion.div>
 
       <motion.div
-        className="absolute h-48 w-48 origin-bottom-left overflow-hidden rounded-xl bg-white shadow-lg"
+        className="absolute h-48 w-48 origin-bottom-left overflow-hidden rounded-xl shadow-lg"
         variants={middleImageVariants}
         whileHover="hover"
         animate="animate"
@@ -128,13 +128,13 @@ export default function ImageReveal({
         <img
           src={middleImage}
           alt="Middle image"
-          className="h-full w-full rounded-2xl object-cover p-2"
+          className="h-full w-full rounded-2xl object-cover"
           loading="lazy"
         />
       </motion.div>
 
       <motion.div
-        className="absolute h-48 w-48 origin-bottom-right overflow-hidden rounded-xl bg-white shadow-lg"
+        className="absolute h-48 w-48 origin-bottom-right overflow-hidden rounded-xl shadow-lg"
         variants={rightImageVariants}
         whileHover="hover"
         animate="animate"
@@ -143,7 +143,7 @@ export default function ImageReveal({
         <img
           src={rightImage}
           alt="Right image"
-          className="h-full w-full rounded-2xl object-cover p-2"
+          className="h-full w-full rounded-2xl object-cover"
           loading="lazy"
         />
       </motion.div>

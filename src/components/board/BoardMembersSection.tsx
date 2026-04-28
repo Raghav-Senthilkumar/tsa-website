@@ -3,32 +3,31 @@ import gsap from "gsap";
 import ImageReveal from "@/components/ui/image-tiles";
 import { Button } from "@/components/ui/button";
 import { ArrowUpRight } from "lucide-react";
+import { useGalleryTransition } from "@/components/transitions/GalleryTransitionProvider";
 
 const base = import.meta.env.BASE_URL;
 
 const CARDS = [
-  { src: `${base}leadership.jpg`, rotate: "-8deg", tag: "alison", tagColor: "#fbc6ff" },
-  { src: `${base}community.jpg`, rotate: "4deg", tag: "ei", tagColor: "#e6fab9" },
-  { src: `${base}events.jpg`, rotate: "-3deg", tag: "linh", tagColor: "#82a0ff" },
-  { src: `${base}support.jpg`, rotate: "6deg", tag: "ismail", tagColor: "#e6fab9" },
-  { src: `${base}events.jpg`, rotate: "-6deg", tag: "eric", tagColor: "#fbc6ff" },
-  { src: `${base}community.jpg`, rotate: "2deg", tag: "christina", tagColor: "#82a0ff" },
-  { src: `${base}leadership.jpg`, rotate: "-2deg", tag: "crystal", tagColor: "#e6fab9" },
-  { src: `${base}support.jpg`, rotate: "5deg", tag: "gokul", tagColor: "#82a0ff" },
-  { src: `${base}events.jpg`, rotate: "-5deg", tag: "dara", tagColor: "#e6fab9" },
-  { src: `${base}community.jpg`, rotate: "3deg", tag: "xander", tagColor: "#fbc6ff" },
-  { src: `${base}support.jpg`, rotate: "-7deg", tag: "vincent", tagColor: "#82a0ff" },
-  { src: `${base}leadership.jpg`, rotate: "7deg", tag: "ije", tagColor: "#fbc6ff" },
-  { src: `${base}community.jpg`, rotate: "-4deg", tag: "pat", tagColor: "#e6fab9" },
-  { src: `${base}events.jpg`, rotate: "1deg", tag: "im", tagColor: "#82a0ff" },
+  { src: `${base}Alison.jpg`, rotate: "-8deg", tag: "alison", tagColor: "#A51931" },
+  { src: `${base}Ei.jpg`, rotate: "4deg", tag: "ei", tagColor: "#F4F5F8" },
+  { src: `${base}Linh.jpg`, rotate: "-3deg", tag: "linh", tagColor: "#2D2A4A" },
+  { src: `${base}Ismail.jpg`, rotate: "6deg", tag: "ismail", tagColor: "#A51931" },
+  { src: `${base}Eric.jpg`, rotate: "-6deg", tag: "eric", tagColor: "#F4F5F8" },
+  { src: `${base}Christina.jpg`, rotate: "2deg", tag: "christina", tagColor: "#2D2A4A" },
+  { src: `${base}Crystal.jpg`, rotate: "-2deg", tag: "crystal", tagColor: "#A51931" },
+  { src: `${base}Gokul.jpg`, rotate: "5deg", tag: "gokul", tagColor: "#F4F5F8" },
+  { src: `${base}Dara.jpg`, rotate: "-5deg", tag: "dara", tagColor: "#2D2A4A" },
+  { src: `${base}Xander.jpg`, rotate: "3deg", tag: "xander", tagColor: "#A51931" },
+  { src: `${base}Vincent.jpg`, rotate: "-7deg", tag: "vincent", tagColor: "#F4F5F8" },
+  { src: `${base}Ije.jpg`, rotate: "7deg", tag: "ije", tagColor: "#2D2A4A" },
+  { src: `${base}Pat.jpg`, rotate: "-4deg", tag: "pat", tagColor: "#A51931" },
+  { src: `${base}Im.jpg`, rotate: "1deg", tag: "im", tagColor: "#F4F5F8" },
 ];
 
 const GALLERY_IMAGES = {
-  left: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=900&q=80",
-  middle:
-    "https://images.unsplash.com/photo-1511632765486-a26380d490e2?auto=format&fit=crop&w=900&q=80",
-  right:
-    "https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=900&q=80",
+  left: `${base}thai.jpeg`,
+  middle: `${base}events.jpg`,
+  right: `${base}thai_2.jpeg`,
 } as const;
 
 const GALLERY_BG = `${import.meta.env.BASE_URL}gallery-bg.png`;
@@ -47,6 +46,8 @@ function HoverInertiaCard({
 
     const card = cardRef.current;
     const inner = innerRef.current;
+    // Tailwind `md` — pointer inertia fights vertical scroll on small viewports.
+    const mq = window.matchMedia("(min-width: 768px)");
 
     const xTo = gsap.quickTo(inner, "x", { duration: 0.9, ease: "power3.out" });
     const yTo = gsap.quickTo(inner, "y", { duration: 0.9, ease: "power3.out" });
@@ -67,7 +68,6 @@ function HoverInertiaCard({
     };
 
     const onDown = (e: PointerEvent) => {
-      // Mobile/touch has no hover — give a small inertial "kick" on press.
       const rect = card.getBoundingClientRect();
       const px = (e.clientX - rect.left) / rect.width - 0.5;
       const py = (e.clientY - rect.top) / rect.height - 0.5;
@@ -94,25 +94,45 @@ function HoverInertiaCard({
       syTo(1);
     };
 
-    card.addEventListener("pointermove", onMove);
-    card.addEventListener("pointerdown", onDown);
-    card.addEventListener("pointerup", onUp);
-    card.addEventListener("pointercancel", onUp);
-    card.addEventListener("pointerleave", onLeave);
+    const reset = () => {
+      gsap.set(inner, { x: 0, y: 0, rotation: 0, scaleX: 1, scaleY: 1 });
+    };
 
-    return () => {
+    const detach = () => {
       card.removeEventListener("pointermove", onMove);
       card.removeEventListener("pointerdown", onDown);
       card.removeEventListener("pointerup", onUp);
       card.removeEventListener("pointercancel", onUp);
       card.removeEventListener("pointerleave", onLeave);
     };
+
+    const attach = () => {
+      detach();
+      if (!mq.matches) {
+        reset();
+        return;
+      }
+      card.addEventListener("pointermove", onMove);
+      card.addEventListener("pointerdown", onDown);
+      card.addEventListener("pointerup", onUp);
+      card.addEventListener("pointercancel", onUp);
+      card.addEventListener("pointerleave", onLeave);
+    };
+
+    attach();
+    mq.addEventListener("change", attach);
+
+    return () => {
+      mq.removeEventListener("change", attach);
+      detach();
+      reset();
+    };
   }, []);
 
   return (
     <div
       ref={cardRef}
-      className="group relative w-full touch-none select-none overflow-visible"
+      className="group relative w-full touch-auto select-none overflow-visible"
       style={{ transform: `rotate(${rotate})` }}
     >
       <div
@@ -130,8 +150,10 @@ function HoverInertiaCard({
         </div>
 
         <div
-          className="absolute -top-3 left-4 inline-flex items-center rounded-[999px] px-3 py-1.5 text-xs font-extrabold tracking-tight text-zinc-900 shadow-[0_12px_40px_-24px_rgba(0,0,0,0.55)] ring-1 ring-black/10 sm:-top-4 sm:left-6 sm:px-4 sm:py-2 sm:text-sm"
           style={{ backgroundColor: tagColor }}
+          className={`absolute -top-3 left-4 inline-flex items-center rounded-[999px] px-3 py-1.5 text-xs font-extrabold tracking-tight shadow-[0_12px_40px_-24px_rgba(0,0,0,0.55)] ring-1 ring-black/10 sm:-top-4 sm:left-6 sm:px-4 sm:py-2 sm:text-sm ${
+            (tagColor === "#2D2A4A" || tagColor === "#A51931") ? "text-white" : "text-zinc-900"
+          }`}
         >
           {tag}
         </div>
@@ -141,6 +163,7 @@ function HoverInertiaCard({
 }
 
 export default function BoardMembersSection() {
+  const { transitionTo } = useGalleryTransition();
   return (
     <section
       id="board"
@@ -231,7 +254,13 @@ export default function BoardMembersSection() {
               <Button
                 size="sm"
                 className="group not-disabled:inset-shadow-none mx-auto flex cursor-pointer items-center justify-center gap-0 rounded-full border-none bg-transparent px-0 py-2 text-sm font-normal shadow-none hover:bg-transparent [:hover,[data-pressed]]:bg-transparent"
-                render={<a href="/gallery" aria-label="View the gallery" />}
+                render={
+                  <button
+                    type="button"
+                    aria-label="View the gallery"
+                    onClick={() => transitionTo("/gallery")}
+                  />
+                }
               >
                 <span className="rounded-full bg-white px-4 py-1.5 font-bold text-[#9B1B30] duration-500 ease-in-out group-hover:bg-[#7A1028] group-hover:text-[#FFFFF0] group-hover:transition-colors">
                   View gallery

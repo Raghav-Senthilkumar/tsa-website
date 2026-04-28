@@ -71,13 +71,16 @@ export default function AeroHero2() {
               </div>
             </div>
             <div className="flex w-fit gap-6">
-              <Button className="group not-disabled:inset-shadow-none mx-auto flex cursor-pointer items-center justify-center gap-0 rounded-full border-none bg-transparent px-0 py-5 font-normal shadow-none hover:bg-transparent [:hover,[data-pressed]]:bg-transparent">
+              <Button
+                className="group not-disabled:inset-shadow-none mx-auto flex cursor-pointer items-center justify-center gap-0 rounded-full border-none bg-transparent px-0 py-3 text-sm font-normal shadow-none hover:bg-transparent sm:py-4 sm:text-base [:hover,[data-pressed]]:bg-transparent"
+                render={<a href="#about" aria-label="Learn more about TSA" />}
+              >
                 <span className="rounded-full bg-white px-6 py-3 font-bold text-[#9B1B30] duration-500 ease-in-out group-hover:bg-[#7A1028] group-hover:text-[#FFFFF0] group-hover:transition-colors">
                   Learn More
                 </span>
-                <div className="relative flex h-fit cursor-pointer items-center overflow-hidden rounded-full bg-white p-5 font-bold text-[#9B1B30] duration-500 ease-in-out group-hover:bg-[#7A1028] group-hover:text-[#FFFFF0] group-hover:transition-colors">
-                  <ArrowUpRight className="absolute h-5 w-5 -translate-x-1/2 transition-all duration-500 ease-in-out group-hover:translate-x-10" />
-                  <ArrowUpRight className="absolute h-5 w-5 -translate-x-10 transition-all duration-500 ease-in-out group-hover:-translate-x-1/2" />
+                <div className="relative flex h-fit cursor-pointer items-center overflow-hidden rounded-full bg-white p-3 font-bold text-[#9B1B30] duration-500 ease-in-out group-hover:bg-[#7A1028] group-hover:text-[#FFFFF0] group-hover:transition-colors sm:p-4">
+                  <ArrowUpRight className="absolute h-4 w-4 -translate-x-1/2 transition-all duration-500 ease-in-out group-hover:translate-x-10 sm:h-5 sm:w-5" />
+                  <ArrowUpRight className="absolute h-4 w-4 -translate-x-10 transition-all duration-500 ease-in-out group-hover:-translate-x-1/2 sm:h-5 sm:w-5" />
                 </div>
               </Button>
             </div>

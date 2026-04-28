@@ -7,6 +7,9 @@ import {
   useRef,
   useState,
 } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+
+import { useGalleryTransition } from "@/components/transitions/GalleryTransitionProvider";
 
 import "./StaggeredMenu.css";
 
@@ -60,6 +63,9 @@ function StaggeredMenu({
   onMenuOpen,
   onMenuClose,
 }: StaggeredMenuProps) {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { transitionTo } = useGalleryTransition();
   const [open, setOpen] = useState(false);
   const openRef = useRef(false);
   const panelRef = useRef<HTMLElement | null>(null);
@@ -528,7 +534,41 @@ function StaggeredMenu({
                     href={it.link}
                     aria-label={it.ariaLabel}
                     data-index={idx + 1}
-                    onClick={() => closeMenu()}
+                    onClick={(e) => {
+                      // Keep external links as normal anchors.
+                      if (/^https?:\/\//i.test(it.link)) return;
+                      if (/^mailto:/i.test(it.link) || /^tel:/i.test(it.link)) return;
+
+                      // Hash links should not trigger a full navigation.
+                      if (it.link.startsWith("#")) {
+                        e.preventDefault();
+                        closeMenu();
+                        const el = document.querySelector(it.link);
+                        if (el instanceof HTMLElement) {
+                          el.scrollIntoView({ behavior: "smooth", block: "start" });
+                        }
+                        return;
+                      }
+
+                      // Internal SPA route navigation.
+                      if (it.link.startsWith("/")) {
+                        e.preventDefault();
+                        closeMenu();
+                        if (it.link === "/gallery") {
+                          transitionTo("/gallery");
+                        } else if (it.link === "/") {
+                          if (location.pathname === "/") {
+                            window.scrollTo({ top: 0, behavior: "smooth" });
+                          } else {
+                            transitionTo("/");
+                          }
+                        } else {
+                          navigate(it.link);
+                        }
+                      } else {
+                        closeMenu();
+                      }
+                    }}
                   >
                     <span className="sm-panel-itemLabel">{it.label}</span>
                   </a>

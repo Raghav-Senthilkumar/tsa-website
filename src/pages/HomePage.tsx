@@ -51,9 +51,7 @@ export default function HomePage() {
         <AboutUsScroll />
       </div>
 
-      <div id="events">
-        <UpcomingEvents />
-      </div>
+      <UpcomingEvents />
 
       <div id="board">
         <BoardMembersSection />
