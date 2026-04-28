@@ -72,6 +72,19 @@ export default function AboutUsScroll() {
       });
 
       mm.add("(prefers-reduced-motion: no-preference)", () => {
+        // Only enable pinning and scroll effects on desktop (md and above)
+        // On mobile, the pinning causes scroll stuttering
+        const isDesktop = window.matchMedia("(min-width: 768px)").matches;
+        
+        if (!isDesktop) {
+          // On mobile, just set initial transforms without ScrollTrigger
+          els.forEach((eachCard, index) => {
+            gsap.set(eachCard, { clearProps: "transform" });
+          });
+          overlayRefs.current.forEach((ov) => ov && gsap.set(ov, { opacity: 0 }));
+          return () => {};
+        }
+
         const triggers: ScrollTrigger[] = [];
 
         els.forEach((eachCard, index) => {
