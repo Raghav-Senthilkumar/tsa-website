@@ -11,9 +11,16 @@
   top: 0;
   left: 0;
   width: 100vw;
-  height: 100vh;
+  height: calc(var(--vh, 1vh) * 100);
+  height: 100svh;
   z-index: 1000;
   overflow: hidden;
+}
+
+@supports (height: 100dvh) {
+  .staggered-menu-wrapper.fixed-wrapper {
+    height: 100dvh;
+  }
 }
 
 .staggered-menu-header {

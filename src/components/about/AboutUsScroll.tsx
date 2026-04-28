@@ -78,7 +78,7 @@ export default function AboutUsScroll() {
         
         if (!isDesktop) {
           // On mobile, just set initial transforms without ScrollTrigger
-          els.forEach((eachCard, index) => {
+          els.forEach((eachCard) => {
             gsap.set(eachCard, { clearProps: "transform" });
           });
           overlayRefs.current.forEach((ov) => ov && gsap.set(ov, { opacity: 0 }));

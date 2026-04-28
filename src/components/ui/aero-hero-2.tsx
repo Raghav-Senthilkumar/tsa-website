@@ -19,7 +19,7 @@ const AVATAR_IMAGES = [
 
 export default function AeroHero2() {
   return (
-    <section className="relative flex min-h-dvh w-full items-end justify-center">
+    <section className="relative flex min-h-[calc(var(--vh,1vh)*100)] w-full items-end justify-center min-h-[100svh]">
       <div
         className="absolute inset-0 h-full w-full bg-cover bg-center bg-no-repeat"
         style={{ backgroundImage: `url(${HERO_IMAGE})` }}
