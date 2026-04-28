@@ -28,53 +28,71 @@ function wrap(min: number, max: number, v: number) {
   return ((((v - min) % rangeSize) + rangeSize) % rangeSize) + min;
 }
 
+const base = import.meta.env.BASE_URL;
+
 const ITEMS: EventItem[] = [
   {
-    id: "squid",
-    title: "Squid Game",
+    id: "water-festival",
+    title: "Water Festival",
     date: "APR 21",
-    venue: "Activation",
-    status: "netflix",
+    venue: "Campus green",
+    status: "annual",
     media: {
-      type: "image",
-      src: "https://images.unsplash.com/photo-1520975916090-3105956dac38?auto=format&fit=crop&w=1200&q=80",
-      alt: "Squid Game event",
+      type: "video",
+      src: `${base}video/water_festival.mp4`,
+      poster: `${base}video/water_festival_poster.jpg`,
     },
   },
   {
-    id: "neon",
-    title: "Neon Lights",
+    id: "krathong",
+    title: "Loy Krathong",
     date: "MAY 03",
-    venue: "Downtown",
-    status: "sold out",
+    venue: "Campus pond",
+    status: "annual",
     media: {
-      type: "image",
-      src: "https://images.unsplash.com/photo-1519608487953-e999c86e7455?auto=format&fit=crop&w=1200&q=80",
-      alt: "Neon Lights event",
+      type: "video",
+      src: `${base}video/krathong.mp4`,
+      poster: `${base}video/krathong_poster.jpg`,
     },
   },
   {
-    id: "cyber",
-    title: "Cyber Punk",
+    id: "trivia",
+    title: "Trivia Night",
     date: "JUN 14",
-    venue: "Warehouse",
-    status: "check tickets",
+    venue: "Student union",
+    status: "monthly",
     media: {
-      type: "image",
-      src: "https://images.unsplash.com/photo-1520975682071-a8e6a4b5b1b6?auto=format&fit=crop&w=1200&q=80",
-      alt: "Cyber Punk event",
+      type: "video",
+      src: `${base}video/trivia.mp4`,
+      poster: `${base}video/trivia_poster.jpg`,
     },
   },
 ];
+
+function videoPreloadForStack(
+  media: EventMedia,
+  stackDistance: number,
+): "auto" | "metadata" | "none" {
+  if (media.type !== "video") return "none";
+  if (media.poster) return "metadata";
+  // Without an image poster, only the centered card fully buffers so decode
+  // does not fight Framer transforms; neighbors get a light probe only.
+  if (stackDistance === 0) return "auto";
+  if (stackDistance === 1) return "metadata";
+  return "none";
+}
 
 function EventMediaView({
   media,
   title,
   isCenter,
+  stackDistance,
 }: {
   media: EventMedia;
   title: string;
   isCenter: boolean;
+  /** 0 = center of fan, 1 = adjacent, 2 = outer — controls video preload weight */
+  stackDistance: number;
 }) {
   const videoRef = React.useRef<HTMLVideoElement | null>(null);
 
@@ -98,16 +116,17 @@ function EventMediaView({
   }, [isCenter, media.type]);
 
   if (media.type === "video") {
+    const preload = videoPreloadForStack(media, stackDistance);
     return (
       <video
         ref={videoRef}
-        className="h-full w-full object-cover"
+        className="h-full w-full object-cover [transform:translateZ(0)]"
         src={media.src}
-        poster={media.poster}
+        {...(media.poster ? { poster: media.poster } : {})}
         muted
         loop
         playsInline
-        preload="metadata"
+        preload={preload}
         draggable={false}
         aria-label={title}
       />
@@ -192,8 +211,8 @@ export default function UpcomingEvents() {
   };
 
   return (
-    <section id="events" aria-label="Upcoming events">
-      <div className="relative w-full overflow-hidden bg-[#303030]">
+    <section id="events" aria-label="Upcoming events" className="w-full">
+      <div className="relative w-full overflow-hidden rounded-[26px] bg-[#241D4F] ring-1 ring-black/10">
         <div className="relative mx-auto flex min-h-[100svh] w-full max-w-6xl flex-col items-center px-6 py-14 sm:px-10 sm:py-16">
           <header className="w-full text-center">
             <div className="inline-flex items-center rounded-full border border-white/20 bg-white/5 px-3 py-1 text-xs font-semibold tracking-wide text-white/80">
@@ -284,7 +303,7 @@ export default function UpcomingEvents() {
               <motion.div
                 key={`${item.id}-${offset}`}
                 className={cn(
-                  "absolute z-10 h-[350px] w-[210px] cursor-grab overflow-hidden rounded-[1.25rem] bg-neutral-900 shadow-2xl ring-[3px] ring-background active:cursor-grabbing sm:h-[420px] sm:w-[270px] sm:ring-[5px] md:h-[580px] md:w-[380px] md:ring-[6px]",
+                  "absolute z-10 h-[350px] w-[210px] cursor-grab overflow-hidden rounded-[1.25rem] bg-neutral-900 shadow-2xl ring-[3px] ring-background [contain:paint] active:cursor-grabbing sm:h-[420px] sm:w-[270px] sm:ring-[5px] md:h-[580px] md:w-[380px] md:ring-[6px]",
                   isCenter ? "z-20" : "z-10",
                 )}
                 onPointerDown={(e) => dragControls.start(e)}
@@ -295,10 +314,16 @@ export default function UpcomingEvents() {
                   scale,
                   opacity: 1,
                   zIndex,
+                  willChange: "transform",
                 }}
                 transition={{ type: "spring", stiffness: 280, damping: 18, mass: 0.9 }}
               >
-                <EventMediaView media={item.media} title={item.title} isCenter={isCenter} />
+                <EventMediaView
+                  media={item.media}
+                  title={item.title}
+                  isCenter={isCenter}
+                  stackDistance={Math.abs(offset)}
+                />
               </motion.div>
             );
           })}

@@ -3,6 +3,7 @@ import gsap from "gsap";
 import ImageReveal from "@/components/ui/image-tiles";
 import { Button } from "@/components/ui/button";
 import { ArrowUpRight } from "lucide-react";
+import { useGalleryTransition } from "@/components/transitions/GalleryTransitionProvider";
 
 const base = import.meta.env.BASE_URL;
 
@@ -24,11 +25,9 @@ const CARDS = [
 ];
 
 const GALLERY_IMAGES = {
-  left: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=900&q=80",
-  middle:
-    "https://images.unsplash.com/photo-1511632765486-a26380d490e2?auto=format&fit=crop&w=900&q=80",
-  right:
-    "https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=900&q=80",
+  left: `${base}thai.jpeg`,
+  middle: `${base}events.jpg`,
+  right: `${base}thai_2.jpeg`,
 } as const;
 
 const GALLERY_BG = `${import.meta.env.BASE_URL}gallery-bg.png`;
@@ -47,6 +46,8 @@ function HoverInertiaCard({
 
     const card = cardRef.current;
     const inner = innerRef.current;
+    // Tailwind `md` — pointer inertia fights vertical scroll on small viewports.
+    const mq = window.matchMedia("(min-width: 768px)");
 
     const xTo = gsap.quickTo(inner, "x", { duration: 0.9, ease: "power3.out" });
     const yTo = gsap.quickTo(inner, "y", { duration: 0.9, ease: "power3.out" });
@@ -67,7 +68,6 @@ function HoverInertiaCard({
     };
 
     const onDown = (e: PointerEvent) => {
-      // Mobile/touch has no hover — give a small inertial "kick" on press.
       const rect = card.getBoundingClientRect();
       const px = (e.clientX - rect.left) / rect.width - 0.5;
       const py = (e.clientY - rect.top) / rect.height - 0.5;
@@ -94,25 +94,45 @@ function HoverInertiaCard({
       syTo(1);
     };
 
-    card.addEventListener("pointermove", onMove);
-    card.addEventListener("pointerdown", onDown);
-    card.addEventListener("pointerup", onUp);
-    card.addEventListener("pointercancel", onUp);
-    card.addEventListener("pointerleave", onLeave);
+    const reset = () => {
+      gsap.set(inner, { x: 0, y: 0, rotation: 0, scaleX: 1, scaleY: 1 });
+    };
 
-    return () => {
+    const detach = () => {
       card.removeEventListener("pointermove", onMove);
       card.removeEventListener("pointerdown", onDown);
       card.removeEventListener("pointerup", onUp);
       card.removeEventListener("pointercancel", onUp);
       card.removeEventListener("pointerleave", onLeave);
     };
+
+    const attach = () => {
+      detach();
+      if (!mq.matches) {
+        reset();
+        return;
+      }
+      card.addEventListener("pointermove", onMove);
+      card.addEventListener("pointerdown", onDown);
+      card.addEventListener("pointerup", onUp);
+      card.addEventListener("pointercancel", onUp);
+      card.addEventListener("pointerleave", onLeave);
+    };
+
+    attach();
+    mq.addEventListener("change", attach);
+
+    return () => {
+      mq.removeEventListener("change", attach);
+      detach();
+      reset();
+    };
   }, []);
 
   return (
     <div
       ref={cardRef}
-      className="group relative w-full touch-none select-none overflow-visible"
+      className="group relative w-full touch-auto select-none overflow-visible"
       style={{ transform: `rotate(${rotate})` }}
     >
       <div
@@ -143,6 +163,7 @@ function HoverInertiaCard({
 }
 
 export default function BoardMembersSection() {
+  const { transitionTo } = useGalleryTransition();
   return (
     <section
       id="board"
@@ -233,7 +254,13 @@ export default function BoardMembersSection() {
               <Button
                 size="sm"
                 className="group not-disabled:inset-shadow-none mx-auto flex cursor-pointer items-center justify-center gap-0 rounded-full border-none bg-transparent px-0 py-2 text-sm font-normal shadow-none hover:bg-transparent [:hover,[data-pressed]]:bg-transparent"
-                render={<a href="/gallery" aria-label="View the gallery" />}
+                render={
+                  <button
+                    type="button"
+                    aria-label="View the gallery"
+                    onClick={() => transitionTo("/gallery")}
+                  />
+                }
               >
                 <span className="rounded-full bg-white px-4 py-1.5 font-bold text-[#9B1B30] duration-500 ease-in-out group-hover:bg-[#7A1028] group-hover:text-[#FFFFF0] group-hover:transition-colors">
                   View gallery
