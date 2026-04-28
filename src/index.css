@@ -113,7 +113,9 @@
   }
 
   body {
-    @apply m-0 min-h-dvh bg-background font-manrope text-foreground antialiased;
+    @apply m-0 bg-background font-manrope text-foreground antialiased;
+    min-height: 100vh;
+    min-height: 100svh;
     overflow-x: hidden;
     overflow-y: auto;
   }

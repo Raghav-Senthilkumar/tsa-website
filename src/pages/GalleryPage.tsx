@@ -47,7 +47,7 @@ export default function GalleryPage() {
         </div>
       </header>
 
-      <section className="min-h-dvh w-full bg-[#141414] px-3 pb-[calc(2.5rem+env(safe-area-inset-bottom))] pt-[calc(5rem+env(safe-area-inset-top))] sm:px-6 sm:pt-[calc(6rem+env(safe-area-inset-top))]">
+      <section className="min-h-[100vh] min-h-[100svh] w-full bg-[#141414] px-3 pb-[calc(2.5rem+env(safe-area-inset-bottom))] pt-[calc(5rem+env(safe-area-inset-top))] sm:px-6 sm:pt-[calc(6rem+env(safe-area-inset-top))]">
         <div className="mx-auto w-full max-w-7xl">
           <div className="columns-1 gap-3 space-y-3 sm:columns-2 sm:gap-5 sm:space-y-5 lg:columns-3">
             {IMAGES.map((src) => (
